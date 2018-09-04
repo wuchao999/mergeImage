@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <img id="show" src="" alt="合成图片">
+    <script>
+        const data = [
+            'star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png',
+            './star.png'
+            ]
+        const getData = () => {
+            const data = []
+            return new Promise((resolve, reject) => {
+                for (let i = 0; i < 100; i++) {
+                    data.push('./star.png')
+                }
+                setTimeout(() => {
+                    resolve(data)
+                }, 100)
+            })
+        }
+        window.onload = function () {
+            const c = document.getElementById('canvas')
+            const ctx = c.getContext('2d')
+            c.width = 890
+            c.height = 800
+
+            ctx.rect(0, 0, c.width, c.height)
+            ctx.fillStyle = '#fff'
+            ctx.fill()
+
+            let imgWidth = 100, imgHeight = 100
+            let aFewLines = Math.floor(c.width / imgWidth) // 一行可以放几张图片
+            let severalLines = 0 // 默认为第0行
+            let top = 10 // 默认从顶端开始
+            
+            const createImg = (i, data) => {
+                const img = new Image()
+                img.setAttribute("crossOrigin",'Anonymous')
+                img.onload = function () {
+                    // console.log(i % aFewLines)
+                    let column = i % aFewLines // 取余保证行数增加,
+                    let left = column * imgWidth + ((column + 1) * 10) // 左间距依次加10
+                    if (column === 0) { // 当索引序号与一行所放的个数取余为0时，就重开一行，并把top设为上一行乘以画布上插入的图片高度
+                        top = severalLines * imgHeight + ((severalLines + 1) * 10) // 上间距
+                        severalLines++ // 另起一行
+                    }
+                    ctx.drawImage(img, left, top, imgWidth, imgHeight)
+                    if (i < data.length - 1) createImg(++i, data) // 如果索引小于数据数组长度，则递归调用
+                    else canvas2Img() // 结束后输出合并后的img 
+                }
+                img.src = data[i]
+            }
+            const canvas2Img = () => {
+                const base64 = c.toDataURL("image/png") // 取出canvas画布转成图片的base64路径，发送给后端
+                
+                 var blob = getBlob(base64);
+                 download(blob)
+            }
+            const download = (blob) => {
+                let a = document.createElement('a')
+                a.download = '二维码.png'
+                a.href = URL.createObjectURL(blob)
+                a.click()
+            }
+            const getBlob = (base64) => {
+                return b64toBlob(getImgData(base64), getContentType(base64));
+            }          
+            const getContentType = (base64) => {
+                return /data:([^;]*);/i.exec(base64)[1];
+            }
+            const getImgData = (base64) => {
+                return base64.substr(base64.indexOf("base64,") + 7, base64.length);
+            }
+            const b64toBlob = (b64Data, contentType, sliceSize) => {
+                contentType = contentType || '';
+                sliceSize = sliceSize || 512;
+    
+                var byteCharacters = atob(b64Data);
+                var byteArrays = [];
+    
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+    
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+    
+                    var byteArray = new Uint8Array(byteNumbers);
+    
+                    byteArrays.push(byteArray);
+                }
+    
+                var blob = new Blob(byteArrays, { type: contentType });
+                return blob;
+            }
+            const computedCanvasHeight = (len, height, aFewLines) => {
+                let lines = Math.ceil(len / aFewLines)
+                console.log(lines)
+                return (height + 10) * lines + 10 // 加上上下顶端的间距
+            }
+            getData().then(data => {
+                c.height = computedCanvasHeight(data.length, imgHeight, aFewLines)
+                createImg(0, data)
+            })
+        }
+    </script>
+</body>
+</html>
