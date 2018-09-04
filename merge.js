@@ -5,10 +5,10 @@ class merge {
         this.height = height || 890
         canvas.width = this.width
         canvas.height = this.height
-        const ctx = canvas.getContext('2d')
-        init(ctx)
+        init(canvas)
     }
-    init (ctx) {
+    init (canvas) {
+        const ctx = canvas.getContext('2d')
         ctx.rect(0, 0, c.width, c.height)
         ctx.fillStyle = '#fff'
         ctx.fill()
