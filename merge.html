@@ -8,10 +8,30 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <!-- <script src="./merge.js"></script> -->
+    <script src="./merge.js"></script>
     <script>
+        const getData = () => {
+            const data = []
+            return new Promise((resolve, reject) => {
+                for (let i = 0; i < 100; i++) {
+                    data.push('./star.png')
+                }
+                setTimeout(() => {
+                    resolve(data)
+                }, 100)
+            })
+        }
         const canvas = document.getElementById('canvas')
-        const merge = new merge(canvas)
+        getData().then(data => {
+            const merge = new Merge({
+                canvas,
+                data,
+                getTransBase64: (data) => {
+                    // console.log(data)
+                }
+            })
+        })
+
     </script>
 </body>
 </html>
