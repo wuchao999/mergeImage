@@ -23,13 +23,17 @@
         }
         const canvas = document.getElementById('canvas')
         getData().then(data => {
-            const merge = new Merge({
+            const merge = new MergeImg({
                 canvas,
                 data,
-                getTransBase64: (data) => {
-                    // console.log(data)
+                getBlobURL: (blob) => {
+                    let a = document.createElement('a')
+                    a.download = '二维码.png'
+                    a.href = URL.createObjectURL(blob)
+                    a.click()
                 }
             })
+            // console.log(merge)
         })
 
     </script>

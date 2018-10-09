@@ -1,8 +1,8 @@
 
-function Merge (options) {
+function MergeImg (options) {
     this.initCanvas(options)
 }
-Merge.prototype = {
+MergeImg.prototype = {
     initCanvas (options) {
         this.data = options.data || []
         /**
@@ -31,7 +31,11 @@ Merge.prototype = {
         this.ctx.rect(0, 0, this.width, this.height)
         this.ctx.fillStyle = '#fff'
         this.ctx.fill()
-        this.getTransBase64 = options.getTransBase64
+        Object.keys(options).forEach(item => {
+            if (typeof options[item] === 'function') {
+                this[item] = options[item]
+            }
+        })
         this.createImg(this.data, 0)
     },
     computedCanvasHeight () {
@@ -59,5 +63,38 @@ Merge.prototype = {
     canvas2Img () {
         this.base64 = this.canvas.toDataURL("image/png") // 取出canvas画布转成图片的base64路径，发送给后端
         this.getTransBase64(this.base64)
+        this.getBlobURL(this.getBlob(this.base64))
+    },
+    getBlob (base64) {
+        return this.b64toBlob(this.getImgData(base64), this.getContentType(base64));
+    },
+    getContentType (base64) {
+        return /data:([^;]*);/i.exec(base64)[1];
+    },
+    getImgData (base64) {
+        return base64.substr(base64.indexOf("base64,") + 7, base64.length);
+    },
+    b64toBlob (b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
+
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            var byteArray = new Uint8Array(byteNumbers);
+
+            byteArrays.push(byteArray);
+        }
+
+        var blob = new Blob(byteArrays, { type: contentType });
+        return blob;
     }
 }
