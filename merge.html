@@ -13,8 +13,12 @@
         const getData = () => {
             const data = []
             return new Promise((resolve, reject) => {
-                for (let i = 0; i < 100; i++) {
-                    data.push('./star.png')
+                for (let i = 0; i < 20; i++) {
+                    data.push({
+                        url: './qr.png',
+                        name: '物资' + i,
+                        code: parseInt(Math.random() * 10000000)
+                    })
                 }
                 setTimeout(() => {
                     resolve(data)
@@ -25,15 +29,13 @@
         getData().then(data => {
             const merge = new MergeImg({
                 canvas,
-                data,
-                getBlobURL: (blob) => {
-                    let a = document.createElement('a')
-                    a.download = '二维码.png'
-                    a.href = URL.createObjectURL(blob)
-                    a.click()
-                }
+                data
+            }).then(blob => {
+                let a = document.createElement('a')
+                a.download = '二维码.png'
+                a.href = URL.createObjectURL(blob)
+                a.click()
             })
-            // console.log(merge)
         })
 
     </script>
