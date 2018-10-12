@@ -21,4 +21,4 @@ const server = http.createServer((req, res) => {
     })
     
 }).listen(8888)
-console.log(`服务启动成功：运行在http://localhost:8888/index.html`)
+console.log(`服务启动成功,运行在: http://localhost:8888/index.html`)
